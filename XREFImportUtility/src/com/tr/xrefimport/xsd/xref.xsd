@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" 
+        targetNamespace="http://xmlns.oracle.com/xref"
+        xmlns:tns="http://xmlns.oracle.com/xref" elementFormDefault="qualified">
+
+  <element name="xref" type="tns:xrefType"/>
+
+  <complexType name="xrefType">
+    <sequence>
+      <element name="table">
+        <complexType>
+          <sequence>
+            <element name="columns" type="tns:columnsType" minOccurs="0"
+                     maxOccurs="1"/>
+            <element name="rows" type="tns:rowsType" maxOccurs="1"
+                     minOccurs="0"/>
+          </sequence>
+          <attribute name="name" use="required">
+            <simpleType>
+             <restriction base="string">
+              <minLength value="1"/>
+             </restriction>
+            </simpleType>
+	  </attribute>
+        </complexType>
+      </element>
+    </sequence>
+  </complexType>
+  
+  <complexType name="columnsType">
+    <sequence>
+      <element name="column" minOccurs="1" maxOccurs="unbounded">
+        <complexType>
+          <attribute name="name" use="required">
+            <simpleType>
+             <restriction base="string">
+               <minLength value="1"/>
+             </restriction>
+            </simpleType>
+          </attribute>
+        </complexType>
+      </element>
+    </sequence>
+  </complexType>
+  
+  <complexType name="rowsType">
+    <sequence>
+      <element name="row" minOccurs="1" maxOccurs="unbounded">
+        <complexType>
+          <sequence>
+            <element name="cell" minOccurs="1" maxOccurs="unbounded">
+              <complexType>
+                <simpleContent>
+                  <extension base="string">
+                    <attribute name="colName" use="required">
+                      <simpleType>
+                        <restriction base="string">
+                           <minLength value="1"/>
+                        </restriction>
+                      </simpleType>
+                    </attribute>
+                  </extension>
+                </simpleContent>
+              </complexType>           
+            </element>
+          </sequence>
+        </complexType>
+      </element>
+    </sequence>
+  </complexType>
+</schema>
