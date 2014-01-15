@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soa-xpath-functions resourceBundle="myPackage.myResourceBundle"
+ xmlns="http://xmlns.oracle.com/soa/config/xpath"
+ xmlns:hs="http://www.oracle.com/XSL/Transform/java/com.reuters.eai.util.StringHasher"
+ xmlns:sf="http://www.oracle.com/XSL/Transform/java/com.reuters.eai.util.StringFormatter">
+  <function name="hs:hashString">
+    <className>com.reuters.eai.util.StringHasher</className>    
+    <desc resourceKey="func1-desc-key">Custom xpath function to create HashString</desc>    
+  </function>
+  <function name="sf:removeSpecialCharacters">
+    <className>com.reuters.eai.util.StringFormatter</className>    
+    <desc resourceKey="func1-desc-key">Custom xpath function to remove removeSpecialCharacters</desc>    
+  </function>
+</soa-xpath-functions>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<project name="custom.xpath" default="main" basedir=".">
+<property environment="env"/>
+<target name="main" depends="compile,jar"/>
+<target name="compile">
+<echo>
+--------------------------------------------------------------
+| compiling
+--------------------------------------------------------------
+</echo>
+ <javac 
+ srcdir="./src"
+ destdir="."
+ classpath="${JDEV_HOME}/soa/modules/oracle.soa.fabric_11.1.1/fabric-runtime.jar"
+ />
+</target>
+<target name="jar">
+<echo>
+--------------------------------------------------------------
+| building jar
+--------------------------------------------------------------
+</echo>
+ 
+ <jar jarfile="common/lib/../../CustomXPathFunctions.jar">
+         <fileset dir=".">
+             <exclude name="src/**"/>
+			 <exclude name="*.jpr"/>
+				<exclude name="*.xml"/>				 	
+         </fileset>
+</jar>
+ 
+</target>
+</project>
+
+
+
