@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<schema attributeFormDefault="unqualified"
+	elementFormDefault="qualified"
+	targetNamespace="http://xmlns.oracle.com/JEJBSample/EmployeeDetailService/EmployeeDetailService"
+	xmlns="http://www.w3.org/2001/XMLSchema">
+	<element name="EmployeeRequest">
+		<complexType>
+			<sequence>
+				<element name="empNo" type="string"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="EmployeeResponse">
+		<complexType>
+			<sequence>
+				<element name="empName" type="string"/>
+                                <element name="empNo" type="string"/>
+                                <element name="empDept" type="string"/>
+                                <element name="empLoc" type="string"/>
+			</sequence>
+		</complexType>
+	</element>
+</schema>
+
