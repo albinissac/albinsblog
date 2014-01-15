@@ -1,0 +1,188 @@
+1)Query to find Composites Start Time and End Time.
+
+Parameters: 
+1)	Edit Start Date and End Date
+2)	TITLE ( uncomment /*AND TITLE LIKE '%1-5449966765%'*/)
+
+
+---- BPEL Query
+SELECT *
+FROM (SELECT ECID, BEGIN_TIME, END_TIME, DURATION_IN_SECOND /*,
+(COUNT / DURATION_IN_SECOND) TPS, MEDIAN*/,
+COUNT
+FROM (SELECT COUNT (*) COUNT, ECID ECID,
+MAX (MODIFY_DATE) END_TIME,
+MIN (CREATION_DATE) BEGIN_TIME,
+( EXTRACT (DAY FROM MAX (MODIFY_DATE)
+- MIN (CREATION_DATE)
+)
+* 86400
++ EXTRACT (HOUR FROM MAX (MODIFY_DATE)
+- MIN (CREATION_DATE)
+)
+* 3600
++ EXTRACT (MINUTE FROM MAX (MODIFY_DATE)
+- MIN (CREATION_DATE)
+)
+* 60
++ EXTRACT (SECOND FROM MAX (MODIFY_DATE)
+- MIN (CREATION_DATE)
+)
+) DURATION_IN_SECOND
+/*,
+MEDIAN ( EXTRACT (DAY FROM MODIFY_DATE - CREATION_DATE)
+* 86400
++ EXTRACT (HOUR FROM MODIFY_DATE - CREATION_DATE)
+* 3600
++ EXTRACT (MINUTE FROM MODIFY_DATE - CREATION_DATE)
+* 60
++ EXTRACT (SECOND FROM MODIFY_DATE - CREATION_DATE)
+) MEDIAN*/
+FROM CUBE_INSTANCE
+WHERE STATE = 5
+AND CREATION_DATE BETWEEN TO_DATE
+('10/10/2011 00:00:00',
+'dd/mm/yyyy HH24:MI:SS'
+)
+AND TO_DATE
+('10/10/2011 08:00:00',
+'dd/mm/yyyy HH24:MI:SS'
+)
+GROUP BY ECID)) A,
+(SELECT A.CIKEY, B.ID, A.CMPST_ID, A.COMPOSITE_NAME, A.COMPONENT_NAME,
+B.TITLE, A.STATE, A.STATUS, A.DOMAIN_NAME, B.STATE STATE1,
+B.CREATED_TIME, B.UPDATED_TIME, A.CREATION_DATE, A.MODIFY_DATE,
+A.ECID ECID1, A.CREATE_CLUSTER_NODE_ID, A.TITLE TITLE1,
+B.PARENT_ID, A.PARENT_REF_ID
+FROM CUBE_INSTANCE A, COMPOSITE_INSTANCE B
+WHERE A.ECID = B.ECID AND ID = CMPST_ID AND (B.PARENT_ID IS NULL)) BC
+WHERE A.ECID = BC.ECID1 /*AND TITLE LIKE '%1-5449966765%'*/ /*AND COMPOSITE_NAME LIKE '%Dequeue%'*/ order by duration_in_second desc,ecid
+
+2)Query to find TOP Number of BPEL Components Hits in EAI by date.
+
+Parameters: 
+1)	Edit Start Date and End Date
+
+-- query to check the top numbers
+
+
+select * from (select count(COMPOSITE_NAME) count,COMPOSITE_NAME   from CUBE_INSTANCE where 
+ CREATION_DATE BETWEEN TO_DATE
+('14/11/2011 12:58:00',
+'dd/mm/yyyy HH24:MI:SS'
+)
+AND TO_DATE
+('14/11/2011 23:00:00',
+'dd/mm/yyyy HH24:MI:SS'
+) and state<5 group by COMPOSITE_NAME ) order by count desc
+
+
+
+3)Query to find Mediator Start Time and End Time.
+
+
+Parameters: 
+1)	Start Date and End Date
+
+
+
+--- Mediator Query
+
+SELECT *
+FROM (SELECT ECID, BEGIN_TIME, END_TIME, DURATION_IN_SECOND /*,
+(COUNT / DURATION_IN_SECOND) TPS, MEDIAN*/,
+COUNT
+FROM (SELECT COUNT (*) COUNT, ECID ECID,
+MAX (UPDATED_TIME) END_TIME,
+MIN (CREATED_TIME) BEGIN_TIME,
+( EXTRACT (DAY FROM MAX (UPDATED_TIME)
+- MIN (CREATED_TIME)
+)
+* 86400
++ EXTRACT (HOUR FROM MAX (UPDATED_TIME)
+- MIN (CREATED_TIME)
+)
+* 3600
++ EXTRACT (MINUTE FROM MAX (UPDATED_TIME)
+- MIN (CREATED_TIME)
+)
+* 60
++ EXTRACT (SECOND FROM MAX (UPDATED_TIME)
+- MIN (CREATED_TIME)
+)
+) DURATION_IN_SECOND
+/*,
+MEDIAN ( EXTRACT (DAY FROM MODIFY_DATE - CREATION_DATE)
+* 86400
++ EXTRACT (HOUR FROM MODIFY_DATE - CREATION_DATE)
+* 3600
++ EXTRACT (MINUTE FROM MODIFY_DATE - CREATION_DATE)
+* 60
++ EXTRACT (SECOND FROM MODIFY_DATE - CREATION_DATE)
+) MEDIAN*/
+FROM MEDIATOR_INSTANCE
+WHERE CREATED_TIME BETWEEN TO_DATE
+('10/10/2010 00:00:00',
+'dd/mm/yyyy HH24:MI:SS'
+)
+AND TO_DATE
+('10/11/2011 08:00:00',
+'dd/mm/yyyy HH24:MI:SS'
+)
+GROUP BY ECID)) A,
+(SELECT COMPOSITE_INSTANCE_ID, COMPONENT_NAME, SOURCE_ACTION_NAME,
+A.CREATED_TIME, A.UPDATED_TIME, 
+A.ECID ECID1, A.PARENT_ID, A.PARENT_REF_ID
+FROM MEDIATOR_INSTANCE A
+WHERE (A.PARENT_ID IS NULL)) BC
+WHERE A.ECID = BC.ECID1 /*AND COMPONENT_NAME LIKE '%%'*/ order by duration_in_second desc,ecid
+
+
+4)Query to find TOP Number of Mediator Components Hits in EAI by date.
+
+
+select * from (select count(COMPONENT_NAME) count,COMPONENT_NAME   
+from MEDIATOR_INSTANCE where 
+ CREATED_TIME BETWEEN TO_DATE
+('14/11/2011 12:58:00',
+'dd/mm/yyyy HH24:MI:SS'
+)
+AND TO_DATE
+('14/11/2011 23:00:00',
+'dd/mm/yyyy HH24:MI:SS'
+) /*and component_state<5*/ group by COMPONENT_NAME ) order by count desc
+
+
+5)Query to find TPS, Average TPS by composites.
+
+select composite_name,COUNT, BEGIN_TIME, END_TIME, DURATION_IN_SECOND, (COUNT/DURATION_IN_SECOND) TPS , MEDIAN from ( 
+select count(*) COUNT, composite_name,max(modify_date) END_TIME , min(creation_date) BEGIN_TIME,
+(extract(day from max(modify_date) - min(creation_date))*86400+ extract(hour from max(modify_date) - min(creation_date))*3600+ extract(minute from max(modify_date) - min(creation_date))*60+ extract(second from max(modify_date) - min(creation_date))) duration_in_second,
+median(extract(day from modify_date - creation_date)*86400+ extract(hour from modify_date - creation_date)*3600+ extract(minute from modify_date - creation_date)*60+ extract(second from modify_date - creation_date)) MEDIAN 
+from cube_instance where state = 5 
+and CREATION_date BETWEEN TO_DATE
+('14/11/2010 12:58:00',
+'dd/mm/yyyy HH24:MI:SS'
+)
+AND TO_DATE
+('14/11/2011 23:00:00',
+'dd/mm/yyyy HH24:MI:SS'
+)
+group by composite_name order by composite_name
+);
+
+
+	 	 	 	 	 
+
+6)To find MIN and MAX time of any composites during load testing
+
+select min(created_time),max(created_time) max_create,min(updated_time) minUpdate,max(updated_time) max_update from composite_instance 
+where composite_dn like '%TRUSTOP_PublishOpportunity%' and
+CREATED_TIME BETWEEN TO_DATE
+('22/11/2011 12:33:00',
+'dd/mm/yyyy HH24:MI:SS'
+)
+AND TO_DATE
+('22/11/2011 23:00:00',
+'dd/mm/yyyy HH24:MI:SS'
+)  
